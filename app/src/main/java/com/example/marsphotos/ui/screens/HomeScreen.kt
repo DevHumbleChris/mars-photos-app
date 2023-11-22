@@ -23,15 +23,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.example.marsphotos.R
+import com.example.marsphotos.model.MarsPhoto
 import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
 @Composable
@@ -81,12 +87,24 @@ fun ErrorScreen(modifier: Modifier = Modifier) {
  * ResultScreen displaying number of photos retrieved.
  */
 @Composable
-fun ResultScreen(photos: String, modifier: Modifier = Modifier) {
+fun ResultScreen(photos: List<MarsPhoto>, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
     ) {
-        Text(text = photos)
+        LazyColumn {
+            items(photos) { photo ->
+                Text(text = photo.id)
+                AsyncImage(
+                    model = ImageRequest.Builder(context = LocalContext.current)
+                        .data(photo.imgSrc)
+                        .build(),
+                    contentDescription = photo.id,
+                    error = painterResource(id = R.drawable.ic_broken_image),
+                    placeholder = painterResource(id = R.drawable.loading_img)
+                )
+            }
+        }
     }
 }
 
@@ -110,6 +128,7 @@ fun ErrorScreenPreview() {
 @Composable
 fun PhotosGridScreenPreview() {
     MarsPhotosTheme {
-        ResultScreen(stringResource(R.string.placeholder_success))
+        val photos: List<MarsPhoto> = emptyList()
+        ResultScreen(photos)
     }
 }

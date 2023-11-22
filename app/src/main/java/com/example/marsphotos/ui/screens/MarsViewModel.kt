@@ -21,7 +21,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marsphotos.model.MarsPhoto
-import com.example.marsphotos.network.MarsApi
+import com.example.marsphotos.network.MarsApiService
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
@@ -30,7 +30,7 @@ import java.io.IOException
  * UI state for the Home screen
  */
 sealed interface MarsUiState {
-    data class Success(val photos: String) : MarsUiState
+    data class Success(val photos: List<MarsPhoto>) : MarsUiState
     object Error : MarsUiState
     object Loading : MarsUiState
 }
@@ -55,10 +55,8 @@ class MarsViewModel : ViewModel() {
         viewModelScope.launch {
             marsUiState = MarsUiState.Loading
             marsUiState = try {
-                val listResult = MarsApi.retrofitService.getPhotos()
-                MarsUiState.Success(
-                    "Success: ${listResult.size} Mars photos retrieved"
-                )
+                val listResult = MarsApiService.retrofitService.getPhotos()
+                MarsUiState.Success(listResult)
             } catch (e: IOException) {
                 MarsUiState.Error
             } catch (e: HttpException) {
